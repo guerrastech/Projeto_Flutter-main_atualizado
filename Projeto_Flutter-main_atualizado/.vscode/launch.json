@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        { 
+            "name": "Projeto_Flutter-main(atualizado)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart" // Coloque o caminho para o seu arquivo principal aqui
+        },
+        {
+            "name": "Projeto_Flutter-main(atualizado) (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart", // Coloque o caminho para o seu arquivo principal aqui
+            "flutterMode": "profile"
+        },
+        {
+            "name": "Projeto_Flutter-main(atualizado) (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart", // Coloque o caminho para o seu arquivo principal aqui
+            "flutterMode": "release"
+        }
+    ]
+}
+    
+
+
+
