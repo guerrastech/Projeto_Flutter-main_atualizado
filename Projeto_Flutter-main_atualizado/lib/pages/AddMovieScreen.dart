@@ -195,7 +195,7 @@ class AddMovieScreen extends StatelessWidget {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    postResquest("4937ce44-a0b2-43a0-87df-1c6df2552854", _tituloController.text, _eneredoController.text,"null", "null", _direcaoController.text, "null", _atuacaoController.text, _generoController.text, "null", 4, true, "null");
+                    postResquest("4937ce44-a0b2-43a0-87df-1c6df2552854", _tituloController.text, _eneredoController.text,"null", "2023-11-16", _direcaoController.text, "null", _atuacaoController.text, _generoController.text, "null", 4, true, "null");
                     // Navigator.of(context).push(
                     //   MaterialPageRoute(
                     //     builder: (context) => HomeScreen(token: "4937ce44-a0b2-43a0-87df-1c6df2552854",),
