@@ -17,5 +17,13 @@ mixin ValidationsMixin {
     }
     return null;
   }
+  String? validarNome(String? nome, [String? message]) {
+    if (nome!.isEmpty) {return message ?? 'Este campo é obrigatório';}
+    return null;
+  }
+  String? validarTelefone(String? telefone, [String? message]) {
+    if (telefone!.isEmpty) {return message ?? 'Este campo é obrigatório';}
+    return null;
+  }
 
 }

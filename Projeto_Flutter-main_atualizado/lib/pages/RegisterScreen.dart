@@ -1,17 +1,31 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_create_vscode/funcoes/validacao_mixins.dart';
+import 'package:flutter_create_vscode/pages/LoginScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_create_vscode/pages/GenreScreen.dart';
+import 'package:http/http.dart' as http;
 
 //Tela de cadastro
 
-class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key, Key? keys});
+class RegisterScreen extends StatelessWidget with ValidationsMixin {
+  RegisterScreen({super.key, Key? keys});
+  
+  final dio = Dio();
+  final _formkey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _senhaController = TextEditingController();
+  final _nomeController = TextEditingController();
+  final _telefoneController = TextEditingController();
+
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         reverse: true,
         child: Center(
+          child: Form(
+          key: _formkey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -50,7 +64,8 @@ class RegisterScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Column(
                     children: [
-                      TextField(
+                      TextFormField(
+                        controller: _nomeController,
                         decoration: InputDecoration(
                           labelText: 'Nome de Usuário',
                           labelStyle: GoogleFonts.poppins(),
@@ -59,6 +74,7 @@ class RegisterScreen extends StatelessWidget {
                             color: Color(0xFF9F86C0),
                           ),
                         ),
+                        validator: validarNome,
                       ),
                     ],
                   ),
@@ -72,7 +88,8 @@ class RegisterScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Column(
                     children: [
-                      TextField(
+                      TextFormField(
+                        controller: _telefoneController,
                         decoration: InputDecoration(
                           labelText: 'Número de Telefone',
                           labelStyle: GoogleFonts.poppins(),
@@ -81,6 +98,7 @@ class RegisterScreen extends StatelessWidget {
                             color: Color(0xFF9F86C0),
                           ),
                         ),
+                        validator: validarTelefone,
                       ),
                     ],
                   ),
@@ -94,7 +112,8 @@ class RegisterScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Column(
                     children: [
-                      TextField(
+                      TextFormField(
+                        controller: _emailController,
                         decoration: InputDecoration(
                           labelText: 'Email',
                           labelStyle: GoogleFonts.poppins(),
@@ -103,6 +122,7 @@ class RegisterScreen extends StatelessWidget {
                             color: Color(0xFF9F86C0),
                           ),
                         ),
+                        validator: validarEmail,
                       ),
                     ],
                   ),
@@ -116,8 +136,16 @@ class RegisterScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Column(
                     children: [
-                      TextField(
+                      TextFormField(
+                        obscureText: true,
+                      controller: _senhaController,
+                      keyboardType: TextInputType.visiblePassword,
                         decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                          icon: Icon(Icons.visibility_off_outlined),
+                          onPressed:() {
+                      
+                          },),
                           labelText: 'Senha',
                           labelStyle: GoogleFonts
                               .poppins(), // Aplicando a fonte Poppins
@@ -125,12 +153,14 @@ class RegisterScreen extends StatelessWidget {
                             Icons.lock_rounded,
                             color: Color(0xFF9F86C0),
                           ),
-                        ),
+                        ),validator: validarSenha,
                       ),
                     ],
                   ),
                 ),
               ),
+
+              
 
               //Botão Cadastrar
               Container(
@@ -139,11 +169,22 @@ class RegisterScreen extends StatelessWidget {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
+                    if (_formkey.currentState!.validate()){
+                      var url = Uri.parse('https://apiloomi.onrender.com/login/');
+                      var response = http.post(url,
+                        body: {      
+                          'username': _emailController.text,
+                          'password': _senhaController.text
+                          },
+                        );
+                        print(response);
+                        
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => GenreScreen(),
+                        builder: (context) => LoginScreen(),
                       ),
                     );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5E548E),
@@ -180,6 +221,6 @@ class RegisterScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }

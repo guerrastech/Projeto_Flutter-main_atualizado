@@ -7,7 +7,8 @@ import 'package:flutter_create_vscode/pages/UnwatchedMoviesScreen.dart';
 //Tela de listas
 
 class ListScreen extends StatelessWidget {
-  const ListScreen({super.key, Key? keys});
+  final String token;
+  ListScreen({key, required this.token}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,7 @@ class ListScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => FavoriteMoviesScreen(),
+                        builder: (context) => FavoriteMoviesScreen(token: token),
                       ),
                     );
                   },
@@ -75,7 +76,7 @@ class ListScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => WatchedMoviesScreen(),
+                        builder: (context) => WatchedMoviesScreen(token: token),
                       ),
                     );
                   },
@@ -101,7 +102,7 @@ class ListScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => UnwatchedMoviesScreen(),
+                        builder: (context) => UnwatchedMoviesScreen(token: token),
                       ),
                     );
                   },

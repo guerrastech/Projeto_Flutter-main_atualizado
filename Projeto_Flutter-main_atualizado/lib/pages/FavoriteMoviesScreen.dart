@@ -1,37 +1,56 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_create_vscode/funcoes/listarFilmes.dart';
+import 'package:flutter_create_vscode/models/filme_modelo.dart';
+import 'package:flutter_create_vscode/repositorios/deletarFilme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 //Tela Favoritos
 
-class FavoriteMovies {
-  final String title;
-  final String genre;
-  final String director;
-  final String cast;
-  final String plot;
-  final String rate;
-  final String imgPath;
 
-  FavoriteMovies(this.title, this.genre, this.director, this.cast, this.plot,
-      this.rate, this.imgPath);
+
+class FavoriteMoviesScreen extends StatefulWidget {
+  final String token;
+  FavoriteMoviesScreen({key, required this.token}) : super(key: key);
+
+   @override
+  _FavoriteMoviesScreenSatate createState() => _FavoriteMoviesScreenSatate();
+  
+
 }
 
-class FavoriteMoviesScreen extends StatelessWidget {
-  const FavoriteMoviesScreen({Key? key}) : super(key: key);
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+class _FavoriteMoviesScreenSatate extends State<FavoriteMoviesScreen> {
+  late String User;
+  final dio = Dio();
+  List<FilmeModel> favoritos= [];
+  List<FilmeModel> tempfilmes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    User = widget.token;
+    listarFilmes(User).then((tempFilmes) {
+      setState(() {
+        tempfilmes = tempFilmes;
+        favoritar();
+      });
+    });
+  }
+
+// Função para filtrar os filmes favoritos
+  void favoritar() {
+    favoritos = tempfilmes.where((filme) => filme.favorito == true).toList();
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    List<FavoriteMovies> movies = [
-      FavoriteMovies(
-        'Halloween - O início',
-        'Terror',
-        'Rob Zombie',
-        'Malcolm McDowell, Brad Dourif, ...',
-        'Michael Myers, traumatizado desde a infância, foge de uma clínica psiquiátrica após 15 anos. Usando uma máscara, retorna a Haddonfield na véspera do Dia das Bruxas para se vingar. Seu passado inclui assassinatos e uma infância perturbadora, marcada por maus-tratos a animais e o assassinato de sua família no Dia das Bruxas. Agora, em silêncio, ele busca vingança na cidade onde tudo começou.',
-        '4.5/5',
-        'https://tse2.mm.bing.net/th?id=OIP.9Jpo7iU5VcteZvrOiiwhcQHaEK&pid=Api&P=0&h=180',
-      ),
-    ];
+
+
 
     return Scaffold(
       body: CustomScrollView(
@@ -125,15 +144,15 @@ class FavoriteMoviesScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => FavoriteMovieDetailsScreen(
-                          movie: movies[index],
+                          tempFilmes: favoritos[index],
                         ),
                       ),
                     );
                   },
-                  child: MovieCard(movies[index]),
+                  child: MovieCard(favoritos[index]),
                 );
               },
-              childCount: movies.length,
+              childCount: favoritos.length,
             ),
           ),
         ],
@@ -141,25 +160,26 @@ class FavoriteMoviesScreen extends StatelessWidget {
     );
   }
 
-  Widget MovieCard(FavoriteMovies movie) {
+  Widget MovieCard(FilmeModel tempFilmes) {
+    print(tempFilmes.titulo);
     return Card(
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 16),
-        leading: Image.network(
-          movie.imgPath,
-          width: 100.0,
-          height: 72.0,
-          fit: BoxFit.cover,
-        ),
+        // leading: Image.network(
+        //   tempFilmes.link_imagem,
+        //   width: 100.0,
+        //   height: 72.0,
+        //   fit: BoxFit.cover,
+        // ),
         title: Text(
-          movie.title,
+          tempFilmes.titulo,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         subtitle: Text(
-          'Avaliação: ${movie.rate}',
+          'Avaliação: ${tempFilmes.estrelas}',
           style: TextStyle(
             fontSize: 16,
           ),
@@ -169,17 +189,21 @@ class FavoriteMoviesScreen extends StatelessWidget {
             Icons.delete,
             color: Colors.red,
           ),
-          onPressed: () {},
+          onPressed: () {
+            deleteResquest(User, tempFilmes.uuid);
+          },
         ),
       ),
     );
   }
 }
 
-class FavoriteMovieDetailsScreen extends StatelessWidget {
-  final FavoriteMovies movie;
 
-  FavoriteMovieDetailsScreen({required this.movie});
+////////////////////////////////////////////////////////////////
+class FavoriteMovieDetailsScreen extends StatelessWidget {
+  final FilmeModel tempFilmes;
+
+  FavoriteMovieDetailsScreen({required this.tempFilmes});
 
   @override
   Widget build(BuildContext context) {
@@ -200,7 +224,7 @@ class FavoriteMovieDetailsScreen extends StatelessWidget {
               color: const Color(0xFF5E548E),
               iconSize: 30,
             ),
-            title: Text(movie.title),
+            title: Text(tempFilmes.titulo),
           ),
           SliverToBoxAdapter(
             child: Center(
@@ -208,7 +232,7 @@ class FavoriteMovieDetailsScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Image.network(
-                    movie.imgPath,
+                    tempFilmes.link_imagem,
                     width: 380.0,
                     height: 200.0,
                     fit: BoxFit.cover,
@@ -218,7 +242,7 @@ class FavoriteMovieDetailsScreen extends StatelessWidget {
                     margin: EdgeInsets.only(left: 5),
                   ),
                   Text(
-                    movie.title,
+                    tempFilmes.titulo,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -238,7 +262,7 @@ class FavoriteMovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.genre}',
+                        '${tempFilmes.generos}',
                         style: TextStyle(
                           fontSize: 18,
                         ),
@@ -259,7 +283,7 @@ class FavoriteMovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.director}',
+                        '${tempFilmes.diretores}',
                         style: TextStyle(
                           fontSize: 18,
                         ),
@@ -280,7 +304,7 @@ class FavoriteMovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.cast}',
+                        '${tempFilmes.atores}',
                         style: TextStyle(
                           fontSize: 18,
                         ),
@@ -302,7 +326,7 @@ class FavoriteMovieDetailsScreen extends StatelessWidget {
                         margin: EdgeInsets.only(right: 9),
                         width: MediaQuery.of(context).size.width - 20,
                         child: Text(
-                          '${movie.plot}',
+                          '${tempFilmes.descricao}',
                           style: TextStyle(
                             fontSize: 18,
                           ),
@@ -325,7 +349,7 @@ class FavoriteMovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.rate}',
+                        '${tempFilmes.estrelas}',
                         style: TextStyle(
                           fontSize: 18,
                         ),

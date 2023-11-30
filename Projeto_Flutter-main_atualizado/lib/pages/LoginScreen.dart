@@ -9,6 +9,7 @@ import 'package:flutter_create_vscode/funcoes/logar.dart';
 
 
 
+
 class LoginScreen extends StatelessWidget with ValidationsMixin {
   LoginScreen({super.key, Key? keys});
 
@@ -16,38 +17,10 @@ class LoginScreen extends StatelessWidget with ValidationsMixin {
   final _formkey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
-  bool _verSenha = false;
-  
-
-  void getResquest(User) async{ 
-    String user = User;
-    var response = await dio.get("https://apiloomi.onrender.com/filme/user/"+user+"/");
-    print(response.data);
-  }
-
-
-  void postResquest(User) async {
-    String user = User;
-    var response = await dio.post("https://apiloomi.onrender.com/filme/user/"+user,
-    data: {
-           "titulo": "string",
-            "descricao": "string",
-            "link_imagem": "string",
-            "data_de_lancamento": "2023-11-16",
-            "diretores": "string",
-            "roteiristas": "string",
-            "atores": "string",
-            "generos": "string",
-            "comentarios": "string",
-            "estrelas": 4,
-            "favorito": true,
-            "status": "string"
-    });
-    print(response.data);
-  }
+  final _verSenha = false;
 
   void putResquest() async {
-    var response = await dio.put('https://apiloomi.onrender.com/filme/cf50d799-516b-46df-a713-e2ddbfc2e2e0/user/4937ce44-a0b2-43a0-87df-1c6df2552854/',
+    var response = await dio.patch('https://apiloomi.onrender.com/filme/cf50d799-516b-46df-a713-e2ddbfc2e2e0/user/4937ce44-a0b2-43a0-87df-1c6df2552854/',
     data: {
            "titulo": "strasdsadasding",
             "descricao": "gfhghfhfghfg",
@@ -66,14 +39,7 @@ class LoginScreen extends StatelessWidget with ValidationsMixin {
   }
 
 
-   void deleteResquest(User) async{ 
-    String user = User;
-    var response = await dio.delete("https://apiloomi.onrender.com/filme/cf50d799-516b-46df-a713-e2ddbfc2e2e0/user/4937ce44-a0b2-43a0-87df-1c6df2552854/");
-    print(response.data);
-  }
-
-
-
+//dart fix --apply
 
 
 
@@ -86,7 +52,7 @@ class LoginScreen extends StatelessWidget with ValidationsMixin {
     void navigateToRegisterScreen() {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => const RegisterScreen(),
+          builder: (context) => RegisterScreen(),
         ),
       );
     }
@@ -103,7 +69,7 @@ class LoginScreen extends StatelessWidget with ValidationsMixin {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomeScreen(),
+          builder: (context) => HomeScreen(token: "4937ce44-a0b2-43a0-87df-1c6df2552854"),
         ),
       );
     }

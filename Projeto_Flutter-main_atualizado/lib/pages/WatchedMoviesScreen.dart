@@ -1,36 +1,52 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_create_vscode/funcoes/listarFilmes.dart';
+import 'package:flutter_create_vscode/models/filme_modelo.dart';
+import 'package:flutter_create_vscode/repositorios/deletarFilme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-//Tela da Lista Assistidos (falta criar a tela de listas para entrar nela)
+//Tela Favoritos
 
-class WatchedMovies {
-  final String title;
-  final String genre;
-  final String director;
-  final String cast;
-  final String plot;
-  final String rate;
-  final String imgPath;
 
-  WatchedMovies(this.title, this.genre, this.director, this.cast, this.plot,
-      this.rate, this.imgPath);
+
+class WatchedMoviesScreen extends StatefulWidget {
+  final String token;
+  WatchedMoviesScreen({key, required this.token}) : super(key: key);
+
+   @override
+  _WatchedMoviesScreenState createState() => _WatchedMoviesScreenState();
+  
+
 }
 
-class WatchedMoviesScreen extends StatelessWidget {
-  const WatchedMoviesScreen({super.key, Key? keys});
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+class _WatchedMoviesScreenState extends State<WatchedMoviesScreen> {
+  late String User;
+  final dio = Dio();
+  List<FilmeModel> tempfilmes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    User = widget.token;
+    listarFilmes(User).then((tempFilmes) {
+      setState(() {
+        tempfilmes = tempFilmes;
+      });
+    });
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
-    List<WatchedMovies> movies = [
-      WatchedMovies(
-          'Pânico 6',
-          'Terror',
-          ' Matt Bettinelli-Olpin e Tyler Gillett',
-          'Melissa Barrera, Jenna Ortega, ...',
-          'Sam, Tara, Mindy, e Chad, sobreviventes do massacre em Woodsboro, mudam-se para Nova York para recomeçar. No entanto, o assassino com a máscara de fantasma reaparece na cidade, causando pânico. Enquanto tentam deixar o passado traumático para trás, os quatro enfrentam um Ghostface com novos truques, desafiando suas experiências anteriores.',
-          '5/5',
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyvwZbtzQpeflX71rForQScUVAQC_UrOX14g&usqp=CAU'),
-    ];
+
+
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -43,7 +59,7 @@ class WatchedMoviesScreen extends StatelessWidget {
                 Icons.arrow_back,
               ),
               onPressed: () {
-                Navigator.of(context).pop(); // Go back to the previous screen
+                Navigator.of(context).pop();
               },
               color: const Color(0xFF5E548E),
               iconSize: 30,
@@ -122,16 +138,16 @@ class WatchedMoviesScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MovieDetailsScreen(
-                          movie: movies[index],
+                        builder: (context) => FavoriteMovieDetailsScreen(
+                          tempFilmes: tempfilmes[index],
                         ),
                       ),
                     );
                   },
-                  child: MovieCard(movies[index]),
+                  child: MovieCard(tempfilmes[index]),
                 );
               },
-              childCount: movies.length,
+              childCount: tempfilmes.length,
             ),
           ),
         ],
@@ -139,25 +155,26 @@ class WatchedMoviesScreen extends StatelessWidget {
     );
   }
 
-  Widget MovieCard(WatchedMovies movie) {
+  Widget MovieCard(FilmeModel tempFilmes) {
+    print(tempFilmes.titulo);
     return Card(
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 16),
-        leading: Image.network(
-          movie.imgPath,
-          width: 100.0,
-          height: 72.0,
-          fit: BoxFit.cover,
-        ),
+        // leading: Image.network(
+        //   tempFilmes.link_imagem,
+        //   width: 100.0,
+        //   height: 72.0,
+        //   fit: BoxFit.cover,
+        // ),
         title: Text(
-          movie.title,
+          tempFilmes.titulo,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         subtitle: Text(
-          'Avaliação: ${movie.rate}',
+          'Avaliação: ${tempFilmes.estrelas}',
           style: TextStyle(
             fontSize: 16,
           ),
@@ -168,7 +185,7 @@ class WatchedMoviesScreen extends StatelessWidget {
             color: Colors.red,
           ),
           onPressed: () {
-            // aqui implementar a função do ícone da lixeira
+            deleteResquest(User, tempFilmes.uuid);
           },
         ),
       ),
@@ -176,10 +193,12 @@ class WatchedMoviesScreen extends StatelessWidget {
   }
 }
 
-class MovieDetailsScreen extends StatelessWidget {
-  final WatchedMovies movie;
 
-  MovieDetailsScreen({required this.movie});
+////////////////////////////////////////////////////////////////
+class FavoriteMovieDetailsScreen extends StatelessWidget {
+  final FilmeModel tempFilmes;
+
+  FavoriteMovieDetailsScreen({required this.tempFilmes});
 
   @override
   Widget build(BuildContext context) {
@@ -195,12 +214,12 @@ class MovieDetailsScreen extends StatelessWidget {
                 Icons.arrow_back,
               ),
               onPressed: () {
-                Navigator.of(context).pop(); // Go back to the previous screen
+                Navigator.of(context).pop();
               },
               color: const Color(0xFF5E548E),
               iconSize: 30,
             ),
-            title: Text(movie.title),
+            title: Text(tempFilmes.titulo),
           ),
           SliverToBoxAdapter(
             child: Center(
@@ -208,7 +227,7 @@ class MovieDetailsScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Image.network(
-                    movie.imgPath,
+                    tempFilmes.link_imagem,
                     width: 380.0,
                     height: 200.0,
                     fit: BoxFit.cover,
@@ -218,7 +237,7 @@ class MovieDetailsScreen extends StatelessWidget {
                     margin: EdgeInsets.only(left: 5),
                   ),
                   Text(
-                    movie.title,
+                    tempFilmes.titulo,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -238,7 +257,7 @@ class MovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.genre}',
+                        '${tempFilmes.generos}',
                         style: TextStyle(
                           fontSize: 18,
                         ),
@@ -259,7 +278,7 @@ class MovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.director}',
+                        '${tempFilmes.diretores}',
                         style: TextStyle(
                           fontSize: 18,
                         ),
@@ -280,7 +299,7 @@ class MovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.cast}',
+                        '${tempFilmes.atores}',
                         style: TextStyle(
                           fontSize: 18,
                         ),
@@ -302,7 +321,7 @@ class MovieDetailsScreen extends StatelessWidget {
                         margin: EdgeInsets.only(right: 9),
                         width: MediaQuery.of(context).size.width - 20,
                         child: Text(
-                          '${movie.plot}',
+                          '${tempFilmes.descricao}',
                           style: TextStyle(
                             fontSize: 18,
                           ),
@@ -325,7 +344,7 @@ class MovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.rate}',
+                        '${tempFilmes.estrelas}',
                         style: TextStyle(
                           fontSize: 18,
                         ),

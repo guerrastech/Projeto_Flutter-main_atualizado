@@ -1,38 +1,51 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_create_vscode/funcoes/listarFilmes.dart';
+import 'package:flutter_create_vscode/models/filme_modelo.dart';
+import 'package:flutter_create_vscode/repositorios/deletarFilme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+//Tela Favoritos
 
-//Tela Não Assistidos
 
-class UnwatchedMovies {
-  final String title;
-  final String genre;
-  final String director;
-  final String cast;
-  final String plot;
-  final String rate;
-  final String imgPath;
 
-  UnwatchedMovies(this.title, this.genre, this.director, this.cast, this.plot,
-      this.rate, this.imgPath);
+class UnwatchedMoviesScreen extends StatefulWidget {
+  final String token;
+  UnwatchedMoviesScreen({key, required this.token}) : super(key: key);
+
+   @override
+  _UnwatchedMoviesScreenState createState() => _UnwatchedMoviesScreenState();
+  
+
 }
 
-class UnwatchedMoviesScreen extends StatelessWidget {
-  const UnwatchedMoviesScreen({Key? key}) : super(key: key);
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+class _UnwatchedMoviesScreenState extends State<UnwatchedMoviesScreen> {
+  late String User;
+  final dio = Dio();
+  List<FilmeModel> tempfilmes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    User = widget.token;
+    listarFilmes(User).then((tempFilmes) {
+      setState(() {
+        tempfilmes = tempFilmes;
+      });
+    });
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
-    List<UnwatchedMovies> movies = [
-      UnwatchedMovies(
-        'Hereditário',
-        'Terror Psicológico',
-        'Ari Aster',
-        'Toni Collette, Gabriel Byrne, ...',
-        'A família Graham, após a morte da avó, confronta segredos sombrios. Lidando com a dor, Annie e sua filha exploram o sobrenatural, enquanto a matriarca continua a influenciar a casa. À medida que o terror cresce, revelações perturbadoras ligam experiências sobrenaturais aos traumas geracionais da família.',
-        '1/5',
-        'https://tse2.explicit.bing.net/th?id=OIP.GIQ7nuEpMHqwxQcSBdxjiQHaD4&pid=Api&P=0&h=180',
-      ),
-    ];
+
+
 
     return Scaffold(
       body: CustomScrollView(
@@ -46,15 +59,15 @@ class UnwatchedMoviesScreen extends StatelessWidget {
                 Icons.arrow_back,
               ),
               onPressed: () {
-                Navigator.of(context).pop(); // Voltar para a tela anterior
+                Navigator.of(context).pop();
               },
               color: const Color(0xFF5E548E),
               iconSize: 30,
             ),
             title: Container(
-              margin: const EdgeInsets.only(left: 50),
+              margin: const EdgeInsets.only(left: 60),
               child: Text(
-                'Não Assistidos',
+                'Não Assistido',
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
@@ -125,16 +138,16 @@ class UnwatchedMoviesScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => UnwatchedMovieDetailsScreen(
-                          movie: movies[index],
+                        builder: (context) => FavoriteMovieDetailsScreen(
+                          tempFilmes: tempfilmes[index],
                         ),
                       ),
                     );
                   },
-                  child: MovieCard(movies[index]),
+                  child: MovieCard(tempfilmes[index]),
                 );
               },
-              childCount: movies.length,
+              childCount: tempfilmes.length,
             ),
           ),
         ],
@@ -142,25 +155,26 @@ class UnwatchedMoviesScreen extends StatelessWidget {
     );
   }
 
-  Widget MovieCard(UnwatchedMovies movie) {
+  Widget MovieCard(FilmeModel tempFilmes) {
+    print(tempFilmes.titulo);
     return Card(
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 16),
-        leading: Image.network(
-          movie.imgPath,
-          width: 100.0,
-          height: 72.0,
-          fit: BoxFit.cover,
-        ),
+        // leading: Image.network(
+        //   tempFilmes.link_imagem,
+        //   width: 100.0,
+        //   height: 72.0,
+        //   fit: BoxFit.cover,
+        // ),
         title: Text(
-          movie.title,
+          tempFilmes.titulo,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         subtitle: Text(
-          'Avaliação: ${movie.rate}',
+          'Avaliação: ${tempFilmes.estrelas}',
           style: TextStyle(
             fontSize: 16,
           ),
@@ -170,17 +184,21 @@ class UnwatchedMoviesScreen extends StatelessWidget {
             Icons.delete,
             color: Colors.red,
           ),
-          onPressed: () {},
+          onPressed: () {
+            deleteResquest(User, tempFilmes.uuid);
+          },
         ),
       ),
     );
   }
 }
 
-class UnwatchedMovieDetailsScreen extends StatelessWidget {
-  final UnwatchedMovies movie;
 
-  UnwatchedMovieDetailsScreen({required this.movie});
+////////////////////////////////////////////////////////////////
+class FavoriteMovieDetailsScreen extends StatelessWidget {
+  final FilmeModel tempFilmes;
+
+  FavoriteMovieDetailsScreen({required this.tempFilmes});
 
   @override
   Widget build(BuildContext context) {
@@ -201,7 +219,7 @@ class UnwatchedMovieDetailsScreen extends StatelessWidget {
               color: const Color(0xFF5E548E),
               iconSize: 30,
             ),
-            title: Text(movie.title),
+            title: Text(tempFilmes.titulo),
           ),
           SliverToBoxAdapter(
             child: Center(
@@ -209,7 +227,7 @@ class UnwatchedMovieDetailsScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Image.network(
-                    movie.imgPath,
+                    tempFilmes.link_imagem,
                     width: 380.0,
                     height: 200.0,
                     fit: BoxFit.cover,
@@ -219,7 +237,7 @@ class UnwatchedMovieDetailsScreen extends StatelessWidget {
                     margin: EdgeInsets.only(left: 5),
                   ),
                   Text(
-                    movie.title,
+                    tempFilmes.titulo,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -239,7 +257,7 @@ class UnwatchedMovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.genre}',
+                        '${tempFilmes.generos}',
                         style: TextStyle(
                           fontSize: 18,
                         ),
@@ -260,7 +278,7 @@ class UnwatchedMovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.director}',
+                        '${tempFilmes.diretores}',
                         style: TextStyle(
                           fontSize: 18,
                         ),
@@ -281,7 +299,7 @@ class UnwatchedMovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.cast}',
+                        '${tempFilmes.atores}',
                         style: TextStyle(
                           fontSize: 18,
                         ),
@@ -303,7 +321,7 @@ class UnwatchedMovieDetailsScreen extends StatelessWidget {
                         margin: EdgeInsets.only(right: 9),
                         width: MediaQuery.of(context).size.width - 20,
                         child: Text(
-                          '${movie.plot}',
+                          '${tempFilmes.descricao}',
                           style: TextStyle(
                             fontSize: 18,
                           ),
@@ -326,7 +344,7 @@ class UnwatchedMovieDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${movie.rate}',
+                        '${tempFilmes.estrelas}',
                         style: TextStyle(
                           fontSize: 18,
                         ),

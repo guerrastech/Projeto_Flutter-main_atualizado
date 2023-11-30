@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_create_vscode/funcoes/logout.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_create_vscode/pages/LoginScreen.dart';
 
 //Tela de Perfil
 
@@ -25,10 +25,7 @@ class ProfileScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                );
+                Logout(context);
               },
               child: Text(
                 'Sair',

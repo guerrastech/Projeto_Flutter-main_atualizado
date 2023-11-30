@@ -1,63 +1,41 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_create_vscode/funcoes/listarFilmes.dart';
 import 'package:flutter_create_vscode/pages/AddMovieScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_create_vscode/pages/ProfileScreen.dart';
 import 'package:flutter_create_vscode/pages/ListScreen.dart';
 import 'package:flutter_create_vscode/models/filme_modelo.dart';
 import 'package:dio/dio.dart';
-import 'package:http/http.dart' as http;
+
 
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  final String token;
+  HomeScreen({key, required this.token}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
+
+
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late String User;
   final dio = Dio();
   List<FilmeModel> filmes = [];
+  List<dynamic> tempfilmes = [];
 
   @override
   void initState() {
     super.initState();
-    getResquest();
-  }
-
-  void getResquest() async {
-    var url = Uri.parse('https://apiloomi.onrender.com/filme/user/4937ce44-a0b2-43a0-87df-1c6df2552854/');
-    var response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      List<dynamic> decodeData = json.decode(response.body);
-      print(decodeData[1]);
-      List<FilmeModel> tempFilmes = [];
-
-      for (var data in decodeData) {
-        tempFilmes.add(FilmeModel(
-        uuid: data['uuid'],
-        titulo: data['titulo'],
-        descricao: data['descricao'],
-        link_imagem: data['link_imagem'],
-        data_de_lancamento: data['data_de_lancamento'], 
-        diretores: data['diretores'], 
-        roteiristas: data['roteiristas'], 
-        atores: data['atores'], 
-        generos: data['generos'], 
-        comentarios: data['comentarios'], 
-        estrelas: data['estrelas'], 
-        favorito: data['favorito'], 
-        status: data['status']
-      ));
-      }
-
+    User = widget.token;
+    listarFilmes(User).then((tempFilmes) {
       setState(() {
         filmes = tempFilmes;
       });
-    }
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -174,19 +152,20 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ListScreen()),
+                  MaterialPageRoute(builder: (context) => ListScreen(token: widget.token,)),
                 );
               },
             ),
-            // IconButton(
-            //      icon: Icon.add_box_outlined,
-            //           color: Color(0xFF9F86C0), size: 30),
-            //     onPressed: () {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(builder: (context) => AddMovieScreen())
-            //       )
-            //     }
+            IconButton(
+              icon: Icon(Icons.add_box_outlined,
+                  color: Color(0xFF9F86C0), size: 30),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddMovieScreen()),
+                );
+                },
+            ),
           ],
         ),
       ),
@@ -204,13 +183,12 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Image.network(
-            
-              tempFilmes.link_imagem,
-              width: 100,
-              fit: BoxFit.cover,
-              height: 120.0,
-            ),
+            // Image.network(
+            //   tempFilmes.link_imagem,
+            //   width: 100,
+            //   fit: BoxFit.cover,
+            //   height: 120.0,
+            // ),
             SizedBox(height: 4),
             Text(
               tempFilmes.titulo,

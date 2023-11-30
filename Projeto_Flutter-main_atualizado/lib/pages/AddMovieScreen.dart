@@ -1,12 +1,50 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_create_vscode/pages/HomeScreen.dart';
+import 'package:flutter_create_vscode/repositorios/cadastrarFilme.dart';
 
 
 //Tela Adicionar Filme
 
 class AddMovieScreen extends StatelessWidget {
-  const AddMovieScreen({Key? key}) : super(key: key);
+  AddMovieScreen({Key? key}) : super(key: key);
+
+
+
+  Dio dio = Dio();
+  void postResquest(User,titulo,descricao,imagem,lancamento,diretor,roteirista,ator,generos,comentario,estrela,favorito,status) async {
+    try {
+      var response = await dio.post("https://apiloomi.onrender.com/filme/user/$User/",
+        data: {
+          "titulo": titulo,
+              "descricao": descricao,
+              "link_imagem": imagem,
+              "data_de_lancamento": lancamento,
+              "diretores": diretor,
+              "roteiristas": roteirista,
+              "atores": ator,
+              "generos": generos,
+              "comentarios": comentario,
+              "estrelas": estrela,
+              "favorito": favorito,
+              "status": status
+        }
+      );
+      print(response.data);
+    } catch (e) {
+      // Tratamento de erro
+      print("Erro ao enviar a requisição: $e");
+      // Pode exibir um SnackBar, uma caixa de diálogo, ou tomar outra ação para informar o usuário sobre o erro.
+    }
+  }
+
+  final _tituloController = TextEditingController();
+  final _generoController = TextEditingController();
+  final _direcaoController = TextEditingController();
+  final _atuacaoController = TextEditingController();
+  final _eneredoController = TextEditingController();
+  final _imgemController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -79,27 +117,28 @@ class AddMovieScreen extends StatelessWidget {
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Título',
-                ),
+                  
+                ),controller: _tituloController,
               ),
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Gênero',
-                ),
+                ),controller: _generoController,
               ),
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Direção',
-                ),
+                ),controller: _direcaoController,
               ),
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Atuação',
-                ),
+                ),controller: _atuacaoController,
               ),
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Enredo',
-                ),
+                ),controller: _eneredoController,
               ),
               SizedBox(height: 14),
               Column(
@@ -156,11 +195,12 @@ class AddMovieScreen extends StatelessWidget {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => HomeScreen(),
-                      ),
-                    );
+                    postResquest("4937ce44-a0b2-43a0-87df-1c6df2552854", _tituloController.text, _eneredoController.text,"null", "null", _direcaoController.text, "null", _atuacaoController.text, _generoController.text, "null", 4, true, "null");
+                    // Navigator.of(context).push(
+                    //   MaterialPageRoute(
+                    //     builder: (context) => HomeScreen(token: "4937ce44-a0b2-43a0-87df-1c6df2552854",),
+                    //   ),
+                    //);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF5E548E),
@@ -223,4 +263,7 @@ class AddMovieScreen extends StatelessWidget {
       },
     );
   }
+
+
+  
 }
